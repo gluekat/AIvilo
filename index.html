@@ -145,6 +145,8 @@ body[data-flip="1"] .seam{flex-direction:column-reverse}
 }
 #panel .note{font:400 11px/1.4 var(--f-mono);letter-spacing:.06em;opacity:.62;margin:14px 0 0}
 #panel .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+#pUpdated{font:400 11px/1 var(--f-mono);letter-spacing:.08em;color:var(--gilt-lit);margin:10px 0 0;opacity:.85}
+#pUpdated[hidden]{display:none}
 #pMedia{margin:0 0 14px;padding:0;border-radius:4px;overflow:hidden;background:#0a0c0b;line-height:0}
 #pMedia img{display:block;width:100%;max-height:220px;object-fit:cover;border-radius:4px}
 #pMedia iframe{display:block;width:100%;aspect-ratio:16/9;border-radius:4px}
@@ -221,6 +223,7 @@ body[data-flip="1"] .seam{flex-direction:column-reverse}
   <p class="eyebrow" id="pKick"></p>
   <h2 id="pTitle"></h2>
   <p class="body" id="pText"></p>
+  <p id="pUpdated" hidden></p>
   <div class="row">
     <a class="btn" id="pLink" href="#" target="_blank" rel="noopener" hidden>View project ↗</a>
     <button class="btn" id="pMirror" type="button"></button>
@@ -400,7 +403,15 @@ var DATA=[
 ];
 var NODES=[];
 function addNode(o){o.id=NODES.length;o.mirror=null;NODES.push(o);return o;}
-addNode({kind:'now',side:'mid',name:'Current Learning',kicker:'The Horizon',text:'The base of the trunk marks the present. This is where the thing being studied this week sits, with a short note on why.'});
+/* ---------- now node config — edit this to update what you are currently building ---------- */
+var NOW={
+  name:'Current Learning',
+  text:'The base of the trunk marks the present. This is where the thing being studied this week sits, with a short note on why.',
+  lastUpdated:'2026-10-21', /* ISO date: YYYY-MM-DD */
+  url:null                  /* optional link */
+};
+/* --------------------------------------------------------------------------------------------- */
+addNode({kind:'now',side:'mid',name:NOW.name,kicker:'The Horizon',text:NOW.text,url:NOW.url||null,lastUpdated:NOW.lastUpdated||null});
 DATA.forEach(function(dd,di){
   var A=addNode({kind:'domain',side:'above',dom:di,idx:domNode[di],name:dd.name,kicker:'Above',text:dd.text});
   var B=addNode({kind:'domain',side:'below',dom:di,idx:domNode[di],name:dd.under,kicker:'Below, '+dd.name,text:dd.underText});
@@ -508,6 +519,17 @@ CH.forEach(function(c){
 });
 var panel=document.getElementById('panel'),pKick=document.getElementById('pKick'),pTitle=document.getElementById('pTitle'),pText=document.getElementById('pText'),pMirror=document.getElementById('pMirror'),pClose=document.getElementById('pClose'),pLink=document.getElementById('pLink');
 var pMedia=document.getElementById('pMedia'),pImg=document.getElementById('pImg'),pVid=document.getElementById('pVid');
+var pUpdated=document.getElementById('pUpdated');
+function fmtUpdated(iso){
+  if(!iso)return null;
+  var d=new Date(iso),now=new Date(),diff=Math.round((now-d)/86400000);
+  if(isNaN(diff))return null;
+  if(diff===0)return'Updated today';
+  if(diff===1)return'Updated yesterday';
+  if(diff<7)return'Updated '+diff+' days ago';
+  /* older: show month + year */
+  return'Updated '+d.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+}
 var idx=document.getElementById('index');
 var fl=0,flT=0,sel=null,hover=null,hits=[],placed=[],chapState='',hdrState='',readState='';
 var peG=0; /* current world position, updated every frame for keyboard nav */
@@ -642,6 +664,15 @@ function drawNow(n,x,y,t,dirSky,active,ga){
     var ph=(t*0.6)%1;
     ctx.strokeStyle=COL.lit;ctx.globalAlpha=(1-ph)*0.8*ga;ctx.lineWidth=1.4;
     ctx.beginPath();ctx.arc(x,y,r+ph*22,0,6.2832);ctx.stroke();ctx.globalAlpha=ga;
+    /* second faster ring when content is fresh (updated within 7 days) */
+    if(n.lastUpdated){
+      var ageDays=(Date.now()-new Date(n.lastUpdated))/86400000;
+      if(ageDays<7){
+        var ph2=(t*1.1+0.5)%1;
+        ctx.strokeStyle=COL.lit;ctx.globalAlpha=(1-ph2)*0.55*ga;ctx.lineWidth=1;
+        ctx.beginPath();ctx.arc(x,y,r+ph2*14,0,6.2832);ctx.stroke();ctx.globalAlpha=ga;
+      }
+    }
   }
   ctx.save();ctx.beginPath();ctx.rect(x-20,dirSky<0?y-20:y,40,20);ctx.clip();
   ctx.fillStyle=COL.mist;ctx.beginPath();ctx.arc(x,y,r,0,6.2832);ctx.fill();ctx.restore();
@@ -1005,6 +1036,10 @@ function openNode(n,nav){
   else{pMirror.hidden=false;pMirror.textContent=n.side==='above'?'See what grew below':'See the work above';}
   if(n.url){pLink.hidden=false;pLink.href=n.url;pLink.textContent=(n.linkLabel||'View project')+' ↗';}
   else{pLink.hidden=true;}
+  /* last-updated line: only for the now node */
+  var upStr=n.kind==='now'?fmtUpdated(n.lastUpdated):null;
+  if(upStr){pUpdated.textContent=upStr;pUpdated.hidden=false;}
+  else{pUpdated.hidden=true;}
   /* media */
   var med=resolveMedia(n.media);
   if(med){
