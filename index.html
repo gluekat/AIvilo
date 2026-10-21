@@ -145,6 +145,10 @@ body[data-flip="1"] .seam{flex-direction:column-reverse}
 }
 #panel .note{font:400 11px/1.4 var(--f-mono);letter-spacing:.06em;opacity:.62;margin:14px 0 0}
 #panel .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+#pMedia{margin:0 0 14px;padding:0;border-radius:4px;overflow:hidden;background:#0a0c0b;line-height:0}
+#pMedia img{display:block;width:100%;max-height:220px;object-fit:cover;border-radius:4px}
+#pMedia iframe{display:block;width:100%;aspect-ratio:16/9;border-radius:4px}
+#pMedia[hidden]{display:none}
 
 @media (min-width:720px){
   #panel{left:auto;width:min(400px,calc(100% - 32px))}
@@ -196,6 +200,10 @@ body[data-flip="1"] .seam{flex-direction:column-reverse}
 <div id="chapters" aria-live="polite"></div>
 
 <aside id="panel" role="dialog" aria-labelledby="pTitle" tabindex="-1" hidden>
+  <figure id="pMedia" hidden>
+    <img id="pImg" alt="" loading="lazy">
+    <iframe id="pVid" frameborder="0" allow="autoplay;fullscreen" allowfullscreen title=""></iframe>
+  </figure>
   <p class="eyebrow" id="pKick"></p>
   <h2 id="pTitle"></h2>
   <p class="body" id="pText"></p>
@@ -353,26 +361,26 @@ var DATA=[
   text:'Code, tools and automation. Each project gets a branch with what it does, how it was built and a link to the live version.',
   underText:'Debug journals, abandoned prototypes and the notes that explain why things were built the way they were.',
   projects:[
-   {name:'Interfaces',text:'Screens, interactions and the front-end work behind them. Screenshots, a short write-up and a link.',under:'Debug journal',underText:'The bugs that took longest, what caused them and what finally fixed them.',url:null},
-   {name:'Automation',text:'Scripts and workflows that remove repeat work. What each one replaces and how much time it saves.',under:'Abandoned prototypes',underText:'Ideas that were started and dropped, with the reason each one stopped.',url:null}]},
+   {name:'Interfaces',text:'Screens, interactions and the front-end work behind them. Screenshots, a short write-up and a link.',under:'Debug journal',underText:'The bugs that took longest, what caused them and what finally fixed them.',url:null,media:null},
+   {name:'Automation',text:'Scripts and workflows that remove repeat work. What each one replaces and how much time it saves.',under:'Abandoned prototypes',underText:'Ideas that were started and dropped, with the reason each one stopped.',url:null,media:null}]},
  {name:'Camper van',under:'Under the van',
   text:'The van build, from bare shell to a place to live. Progress photos, layouts and finished systems.',
   underText:'Measurements, load calculations and the mistakes that changed the plan.',
   projects:[
-   {name:'Electrical',text:'Battery bank, charging and wiring. Diagrams, parts lists and the finished system.',under:'Wiring calculations',underText:'Wire gauges, fuse sizing and load math, with the corrections made along the way.',url:null},
-   {name:'Build-out',text:'Insulation, cabinetry and the bed platform. A before and after slider for each stage.',under:'Wrong measurements',underText:'Cuts that were off, the templates that fixed them and what to measure twice.',url:null}]},
+   {name:'Electrical',text:'Battery bank, charging and wiring. Diagrams, parts lists and the finished system.',under:'Wiring calculations',underText:'Wire gauges, fuse sizing and load math, with the corrections made along the way.',url:null,media:null},
+   {name:'Build-out',text:'Insulation, cabinetry and the bed platform. A before and after slider for each stage.',under:'Wrong measurements',underText:'Cuts that were off, the templates that fixed them and what to measure twice.',url:null,media:null}]},
  {name:'Oil painting',under:'Under the paint',
   text:'Oil painting, the most recent medium. Finished canvases next to the studies that led to them.',
   underText:'Underpaintings, color charts and glazes that did not work.',
   projects:[
-   {name:'Finished works',text:'Completed canvases with size, palette and a time-lapse of each.',under:'Failed glazes',underText:'Layers that went muddy or cracked, and what changed the next attempt.',url:null},
-   {name:'Studies',text:'Small, quick studies of light, edges and color temperature.',under:'Color mixing charts',underText:'Swatches and mixing recipes pulled from each study.',url:null}]},
+   {name:'Finished works',text:'Completed canvases with size, palette and a time-lapse of each.',under:'Failed glazes',underText:'Layers that went muddy or cracked, and what changed the next attempt.',url:null,media:null},
+   {name:'Studies',text:'Small, quick studies of light, edges and color temperature.',under:'Color mixing charts',underText:'Swatches and mixing recipes pulled from each study.',url:null,media:null}]},
  {name:'Hydroponics',under:'Under the water',
   text:'A hydroponic garden on a rack with a timed light and measured nutrients. Live readings and harvest photos.',
   underText:'pH and EC logs, nutrient recipes and the plants that did not survive.',
   projects:[
-   {name:'Grow rack',text:'The build: reservoir, pump, light and timer. Parts list and wiring.',under:'pH and EC logs',underText:'Daily readings charted over time, including the days that drifted.',url:null},
-   {name:'Harvests',text:'What came out of the rack, with dates and yields.',under:'What wilted',underText:'Failed seedlings and root problems, with the likely cause of each.',url:null}]}
+   {name:'Grow rack',text:'The build: reservoir, pump, light and timer. Parts list and wiring.',under:'pH and EC logs',underText:'Daily readings charted over time, including the days that drifted.',url:null,media:null},
+   {name:'Harvests',text:'What came out of the rack, with dates and yields.',under:'What wilted',underText:'Failed seedlings and root problems, with the likely cause of each.',url:null,media:null}]}
 ];
 var NODES=[];
 function addNode(o){o.id=NODES.length;o.mirror=null;NODES.push(o);return o;}
@@ -382,7 +390,7 @@ DATA.forEach(function(dd,di){
   var B=addNode({kind:'domain',side:'below',dom:di,idx:domNode[di],name:dd.under,kicker:'Below, '+dd.name,text:dd.underText});
   A.mirror=B.id;B.mirror=A.id;
   dd.projects.forEach(function(pr,pj){
-    var a=addNode({kind:'project',side:'above',dom:di,idx:projNode[di][pj],name:pr.name,kicker:'Above, '+dd.name,text:pr.text,url:pr.url||null,linkLabel:pr.linkLabel||null});
+    var a=addNode({kind:'project',side:'above',dom:di,idx:projNode[di][pj],name:pr.name,kicker:'Above, '+dd.name,text:pr.text,url:pr.url||null,linkLabel:pr.linkLabel||null,media:pr.media||null});
     var b=addNode({kind:'project',side:'below',dom:di,idx:projNode[di][pj],name:pr.under,kicker:'Below, shadow of '+pr.name,text:pr.underText,url:null});
     a.mirror=b.id;b.mirror=a.id;
   });
@@ -483,6 +491,7 @@ CH.forEach(function(c){
   if(c.kind==='bottom')wmBot=sec.querySelector('.wm');
 });
 var panel=document.getElementById('panel'),pKick=document.getElementById('pKick'),pTitle=document.getElementById('pTitle'),pText=document.getElementById('pText'),pMirror=document.getElementById('pMirror'),pClose=document.getElementById('pClose'),pLink=document.getElementById('pLink');
+var pMedia=document.getElementById('pMedia'),pImg=document.getElementById('pImg'),pVid=document.getElementById('pVid');
 var idx=document.getElementById('index');
 var fl=0,flT=0,sel=null,hover=null,hits=[],placed=[],chapState='',hdrState='',readState='';
 var peG=0; /* current world position, updated every frame for keyboard nav */
@@ -962,6 +971,17 @@ function goTo(n){
   while(s>HI)s-=PER;
   window.scrollTo({top:s,behavior:reduce?'auto':'smooth'});
 }
+function resolveMedia(m){
+  /* returns {type:'image'|'youtube'|'vimeo', src:string} or null */
+  if(!m)return null;
+  var yt=m.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if(yt)return{type:'youtube',src:'https://www.youtube-nocookie.com/embed/'+yt[1]+'?rel=0'};
+  var vm=m.match(/vimeo\.com\/(\d+)/);
+  if(vm)return{type:'vimeo',src:'https://player.vimeo.com/video/'+vm[1]};
+  if(/\.(jpg|jpeg|png|gif|webp|avif|svg)(\?|$)/i.test(m))return{type:'image',src:m};
+  /* bare URL with no recognised extension — treat as image */
+  return{type:'image',src:m};
+}
 function openNode(n,nav){
   sel=n;
   pKick.textContent=n.kicker;pTitle.textContent=n.name;pText.textContent=n.text;
@@ -969,10 +989,25 @@ function openNode(n,nav){
   else{pMirror.hidden=false;pMirror.textContent=n.side==='above'?'See what grew below':'See the work above';}
   if(n.url){pLink.hidden=false;pLink.href=n.url;pLink.textContent=(n.linkLabel||'View project')+' ↗';}
   else{pLink.hidden=true;}
+  /* media */
+  var med=resolveMedia(n.media);
+  if(med){
+    pMedia.hidden=false;
+    if(med.type==='image'){
+      pImg.src=med.src;pImg.hidden=false;pVid.src='';pVid.hidden=true;
+    } else {
+      pVid.src=med.src;pVid.title=n.name;pVid.hidden=false;pImg.src='';pImg.hidden=true;
+    }
+  } else {
+    pMedia.hidden=true;pImg.src='';pVid.src='';pImg.hidden=true;pVid.hidden=true;
+  }
   panel.hidden=false;document.body.classList.add('has-panel');
   if(nav)goTo(n);
 }
-function closePanel(){sel=null;panel.hidden=true;document.body.classList.remove('has-panel');}
+function closePanel(){
+  sel=null;panel.hidden=true;document.body.classList.remove('has-panel');
+  pVid.src=''; /* stop video playback */
+}
 pClose.addEventListener('click',closePanel);
 pMirror.addEventListener('click',function(){if(sel&&sel.mirror!=null)openNode(NODES[sel.mirror],true);});
 
