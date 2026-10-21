@@ -494,6 +494,7 @@ var SKULL_PTS=[[0,-400],[-170,-350],[-270,-180],[-260,60],[-140,200],[140,200],[
 var SKULL_LINS=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,0],[9,10],[10,12],[12,11],[11,9],[13,14],[14,16],[16,15],[15,13],[17,18],[19,0],[19,9],[19,14]];
 /* shooting stars */
 var shoots=[],shootTick=3;
+var lastHashT=0;
 
 /* ---------- drawing helpers ---------- */
 function strokeSet(XS,YS,useCull,color,ox,oy){
@@ -633,6 +634,19 @@ function frame(ts){
   fl+=(flT-fl)*(reduce?1:0.075);if(Math.abs(flT-fl)<0.002)fl=flT;
   var sgn=Math.cos(Math.PI*fl),fe=(1-sgn)/2;
   var pe=wrapW(dir*(sc/KPX)+off);
+  /* update location hash at most once per second so the URL reflects current level */
+  if(t-lastHashT>1){
+    lastHashT=t;
+    var hid='horizon';
+    if(pe<-2*LV)hid='beyond';
+    else if(pe<-LV)hid='sky';
+    else if(pe<-0.25*LV)hid='branches';
+    else if(pe<0.25*LV)hid='horizon';
+    else if(pe<1.5*LV)hid='roots';
+    else if(pe<2.5*LV)hid='deep';
+    else hid='core';
+    try{history.replaceState(null,'','#'+hid);}catch(e){}
+  }
   var hoL=1-ss(0.15*LV,0.5*LV,Math.abs(pe));   /* how strongly the opening mark shows */
   camAt(pe);
   var camY=camYv;
@@ -971,8 +985,23 @@ document.addEventListener('keydown',function(e){
 window.addEventListener('resize',layout);
 layout();
 try{if('scrollRestoration' in history)history.scrollRestoration='manual';}catch(e){}
-window.scrollTo(0,NP/2*PER);
-sc=window.scrollY;off=-dir*(sc/KPX);ready=true;
+var initPe=0;
+(function(){
+  var hmap={beyond:-2.5*LV,sky:-1.5*LV,branches:-0.75*LV,horizon:0,roots:LV,deep:2*LV,core:2.75*LV};
+  var h=(location.hash||'').replace('#','').toLowerCase();
+  /* also support node slugs: #node-interfaces, #node-automation, etc. */
+  if(h.indexOf('node-')===0){
+    var slug=h.slice(5);
+    for(var ni=0;ni<NODES.length;ni++){
+      if(NODES[ni].name.toLowerCase().replace(/\s+/g,'-')===slug){initPe=NODES[ni].side==='above'?-LV:LV;break;}
+    }
+  } else if(hmap[h]!==undefined){
+    initPe=hmap[h];
+  }
+})();
+var initS=(initPe-off)*dir*KPX+NP/2*PER;
+window.scrollTo(0,initS);
+sc=window.scrollY;off=-dir*(sc/KPX)+initPe;ready=true;
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measureSeams);
 requestAnimationFrame(frame);
 })();
