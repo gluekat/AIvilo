@@ -1,0 +1,106 @@
+[
+  {
+    "name": "Software",
+    "under": "Under the code",
+    "text": "Code, tools and automation. Each project gets a branch with what it does, how it was built and a link to the live version.",
+    "underText": "Debug journals, abandoned prototypes and the notes that explain why things were built the way they were.",
+    "projects": [
+      {
+        "name": "Interfaces",
+        "text": "Screens, interactions and the front-end work behind them. Screenshots, a short write-up and a link.",
+        "under": "Debug journal",
+        "underText": "The bugs that took longest, what caused them and what finally fixed them.",
+        "url": null,
+        "media": null,
+        "linkLabel": null
+      },
+      {
+        "name": "Automation",
+        "text": "Scripts and workflows that remove repeat work. What each one replaces and how much time it saves.",
+        "under": "Abandoned prototypes",
+        "underText": "Ideas that were started and dropped, with the reason each one stopped.",
+        "url": null,
+        "media": null,
+        "linkLabel": null
+      }
+    ]
+  },
+  {
+    "name": "Camper van",
+    "under": "Under the van",
+    "text": "The van build, from bare shell to a place to live. Progress photos, layouts and finished systems.",
+    "underText": "Measurements, load calculations and the mistakes that changed the plan.",
+    "projects": [
+      {
+        "name": "Electrical",
+        "text": "Battery bank, charging and wiring. Diagrams, parts lists and the finished system.",
+        "under": "Wiring calculations",
+        "underText": "Wire gauges, fuse sizing and load math, with the corrections made along the way.",
+        "url": null,
+        "media": null,
+        "linkLabel": null
+      },
+      {
+        "name": "Build-out",
+        "text": "Insulation, cabinetry and the bed platform. A before and after slider for each stage.",
+        "under": "Wrong measurements",
+        "underText": "Cuts that were off, the templates that fixed them and what to measure twice.",
+        "url": null,
+        "media": null,
+        "linkLabel": null
+      }
+    ]
+  },
+  {
+    "name": "Oil painting",
+    "under": "Under the paint",
+    "text": "Oil painting, the most recent medium. Finished canvases next to the studies that led to them.",
+    "underText": "Underpaintings, color charts and glazes that did not work.",
+    "projects": [
+      {
+        "name": "Finished works",
+        "text": "Completed canvases with size, palette and a time-lapse of each.",
+        "under": "Failed glazes",
+        "underText": "Layers that went muddy or cracked, and what changed the next attempt.",
+        "url": null,
+        "media": null,
+        "linkLabel": null
+      },
+      {
+        "name": "Studies",
+        "text": "Small, quick studies of light, edges and color temperature.",
+        "under": "Color mixing charts",
+        "underText": "Swatches and mixing recipes pulled from each study.",
+        "url": null,
+        "media": null,
+        "linkLabel": null
+      }
+    ]
+  },
+  {
+    "name": "Hydroponics",
+    "under": "Under the water",
+    "text": "A hydroponic garden on a rack with a timed light and measured nutrients. Live readings and harvest photos.",
+    "underText": "pH and EC logs, nutrient recipes and the plants that did not survive.",
+    "projects": [
+      {
+        "name": "Grow rack",
+        "text": "The build: reservoir, pump, light and timer. Parts list and wiring.",
+        "under": "pH and EC logs",
+        "underText": "Daily readings charted over time, including the days that drifted.",
+        "url": null,
+        "media": null,
+        "linkLabel": null
+      },
+      {
+        "name": "Harvests",
+        "text": "What came out of the rack, with dates and yields.",
+        "under": "What wilted",
+        "underText": "Failed seedlings and root problems, with the likely cause of each.",
+        "url": null,
+        "media": null,
+        "linkLabel": null
+      }
+    ]
+  }
+]

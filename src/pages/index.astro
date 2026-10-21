@@ -1,0 +1,63 @@
+---
+import Base from '../layouts/Base.astro';
+import domains from '../data/domains.json';
+import chapters from '../data/chapters.json';
+import now from '../data/now.json';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<Base>
+  <canvas id="stage" role="img" aria-label="A tree whose crown holds finished work and whose mirrored roots hold the learning behind it. The Index button lists everything as text."></canvas>
+
+  <header id="bar">
+    <div class="mark"><span class="word">AIVILO</span><span class="read" id="read">ABOVE 0</span></div>
+    <nav aria-label="View controls">
+      <button class="btn" id="btnFlip" type="button" aria-pressed="false">Flip</button>
+      <button class="btn" id="btnIndex" type="button">Index</button>
+    </nav>
+  </header>
+
+  <h1 class="sr">AIVILO</h1>
+  <div id="hmark" aria-hidden="true"><div class="half top"><span class="wm"></span></div><div class="half bot"><span class="wm"></span></div></div>
+
+  <section id="hero">
+    <p class="sub">Everything I make has a mirror beneath — the failures, the notes, the thinking that got it here.</p>
+    <p class="cue" id="cue">Scroll to descend</p>
+  </section>
+
+  <div id="chapters" aria-live="polite"></div>
+
+  <aside id="panel" role="dialog" aria-labelledby="pTitle" tabindex="-1" hidden>
+    <figure id="pMedia" hidden>
+      <img id="pImg" alt="" loading="lazy">
+      <iframe id="pVid" frameborder="0" allow="autoplay;fullscreen" allowfullscreen title=""></iframe>
+    </figure>
+    <p class="eyebrow" id="pKick"></p>
+    <h2 id="pTitle"></h2>
+    <p class="body" id="pText"></p>
+    <p id="pUpdated" hidden></p>
+    <div class="row">
+      <a class="btn" id="pLink" href="#" target="_blank" rel="noopener" hidden>View project ↗</a>
+      <button class="btn" id="pMirror" type="button"></button>
+      <button class="btn" id="pClose" type="button">Close</button>
+    </div>
+  </aside>
+
+  <div id="index" role="dialog" aria-label="Index of everything on the tree" hidden>
+    <div class="top">
+      <h2>INDEX</h2>
+      <input id="idxSearch" type="search" placeholder="Filter…" autocomplete="off" aria-label="Filter index">
+      <button class="btn" id="idxClose" type="button">Close</button>
+    </div>
+    <div class="cols">
+      <section><h3>Above, the work</h3><ul id="idxAbove"></ul></section>
+      <section><h3>Below, the roots</h3><ul id="idxBelow"></ul></section>
+    </div>
+    <p id="idxEmpty" hidden>No matches.</p>
+  </div>
+
+  <div id="probe" aria-hidden="true" style="position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px)"></div>
+  <div id="track"></div>
+
+  <script is:inline set:html={`window.__AIVILO__=${JSON.stringify({domains,chapters,now})};`}></script>
+  <script is:inline src={`${base}/tree.js`}></script>
+</Base>

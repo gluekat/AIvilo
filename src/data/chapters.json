@@ -1,0 +1,9 @@
+[
+  { "id": "beyond", "kind": "top",    "k": "Above", "h": "The Beyond",   "t": "Past the last of the air there is only dark and possibility. Things not yet made drift here, waiting." },
+  { "id": "sky",    "kind": "fixed",  "k": "Above", "h": "The Sky",      "t": "Over the branches the work becomes a view. This is where the next limbs are planned.", "c": -2 },
+  { "id": "branches","kind":"fixed",  "k": "Above", "h": "The Branches", "t": "Four limbs hold software, a van build, oil paintings and a hydroponic grow rack. Select a node to open a project.", "c": -1 },
+  { "id": "horizon","kind": "fixed",  "k": "Ground","h": "The Horizon",  "t": "The base of the trunk marks what is being learned right now.", "c": 0 },
+  { "id": "roots",  "kind": "fixed",  "k": "Below", "h": "The Roots",    "t": "Every project has a root that mirrors it. Notes, sketches, failures and research live down here.", "c": 1 },
+  { "id": "deep",   "kind": "fixed",  "k": "Below", "h": "The Deep",     "t": "The oldest notes sit furthest down: early experiments, dead ends and the research behind everything above.", "c": 2, "oa": 0.05, "ob": 0.3 },
+  { "id": "core",   "kind": "bottom", "k": "Below", "h": "The Core",     "t": "The oldest ideas, the first attempts, the thinking underneath everything. Keep going and the loop returns to the stars." }
+]
