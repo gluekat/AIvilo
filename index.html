@@ -172,6 +172,20 @@ body[data-flip="1"] .seam{flex-direction:column-reverse}
 .idx-item .t{font:400 20px/1.15 var(--f-display);letter-spacing:.03em}
 .idx-item .k{font:400 11px/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;opacity:.6}
 .idx-item:hover .t{color:var(--gilt-lit)}
+.idx-item[hidden]{display:none}
+#idxSearch{
+  all:unset;box-sizing:border-box;
+  font:400 13px/1 var(--f-mono);letter-spacing:.06em;
+  color:var(--bone);background:rgba(239,232,220,.07);
+  border:1px solid rgba(221,229,222,.28);border-radius:3px;
+  padding:6px 10px;width:min(180px,40vw);
+  transition:border-color .15s;
+}
+#idxSearch:focus{outline:none;border-color:var(--gilt)}
+#idxSearch::placeholder{opacity:.45}
+#idxSearch::-webkit-search-cancel-button{-webkit-appearance:none}
+#idxEmpty{font:400 13px/1 var(--f-mono);letter-spacing:.06em;opacity:.5;margin:24px 0 0;padding:0}
+#idxEmpty[hidden]{display:none}
 @media (min-width:720px){#index .cols{grid-template-columns:1fr 1fr;gap:56px}}
 
 @media (prefers-reduced-motion:reduce){#chapters,#bar,#hero{transition:none}}
@@ -217,12 +231,14 @@ body[data-flip="1"] .seam{flex-direction:column-reverse}
 <div id="index" role="dialog" aria-label="Index of everything on the tree" hidden>
   <div class="top">
     <h2>INDEX</h2>
+    <input id="idxSearch" type="search" placeholder="Filter…" autocomplete="off" aria-label="Filter index">
     <button class="btn" id="idxClose" type="button">Close</button>
   </div>
   <div class="cols">
     <section><h3>Above, the work</h3><ul id="idxAbove"></ul></section>
     <section><h3>Below, the roots</h3><ul id="idxBelow"></ul></section>
   </div>
+  <p id="idxEmpty" hidden>No matches.</p>
 </div>
 
 <div id="probe" aria-hidden="true" style="position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px)"></div>
@@ -1021,6 +1037,8 @@ btnFlip.addEventListener('click',function(){
   elCue.textContent=flT?'Scroll to climb':'Scroll to descend';
 });
 
+var idxSearch=document.getElementById('idxSearch');
+var idxEmpty=document.getElementById('idxEmpty');
 function buildIndex(){
   var up=document.getElementById('idxAbove'),dn=document.getElementById('idxBelow');
   NODES.forEach(function(n){
@@ -1029,13 +1047,34 @@ function buildIndex(){
     var t=document.createElement('span');t.className='t';t.textContent=n.name;
     var k=document.createElement('span');k.className='k';k.textContent=n.kicker;
     b.appendChild(t);b.appendChild(k);li.appendChild(b);
-    b.addEventListener('click',function(){idx.hidden=true;openNode(n,true);});
+    li.dataset.search=(n.name+' '+n.kicker).toLowerCase();
+    b.addEventListener('click',function(){idx.hidden=true;idxSearch.value='';filterIndex('');openNode(n,true);});
     (n.side==='below'?dn:up).appendChild(li);
   });
 }
+function filterIndex(q){
+  q=q.toLowerCase().trim();
+  var items=idx.querySelectorAll('li[data-search]');
+  var shown=0;
+  items.forEach(function(li){
+    var match=!q||li.dataset.search.indexOf(q)!==-1;
+    li.hidden=!match;
+    if(match)shown++;
+  });
+  idxEmpty.hidden=shown>0;
+}
 buildIndex();
-document.getElementById('btnIndex').addEventListener('click',function(){idx.hidden=false;document.getElementById('idxClose').focus();});
-document.getElementById('idxClose').addEventListener('click',function(){idx.hidden=true;});
+document.getElementById('btnIndex').addEventListener('click',function(){
+  idx.hidden=false;idxSearch.value='';filterIndex('');idxSearch.focus();
+});
+document.getElementById('idxClose').addEventListener('click',function(){idx.hidden=true;idxSearch.value='';filterIndex('');});
+idxSearch.addEventListener('input',function(){filterIndex(idxSearch.value);});
+idxSearch.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(idxSearch.value){idxSearch.value='';filterIndex('');e.stopPropagation();}
+    /* else let the outer keydown handler close the index */
+  }
+});
 /* level centres in world-position order (Beyond → Core) */
 var LEVELS=[-2.5*LV,-2*LV,-LV,0,LV,2*LV,2.75*LV];
 function goToLevel(targetPe){
