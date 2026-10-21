@@ -485,6 +485,7 @@ CH.forEach(function(c){
 var panel=document.getElementById('panel'),pKick=document.getElementById('pKick'),pTitle=document.getElementById('pTitle'),pText=document.getElementById('pText'),pMirror=document.getElementById('pMirror'),pClose=document.getElementById('pClose'),pLink=document.getElementById('pLink');
 var idx=document.getElementById('index');
 var fl=0,flT=0,sel=null,hover=null,hits=[],placed=[],chapState='',hdrState='',readState='';
+var peG=0; /* current world position, updated every frame for keyboard nav */
 var dust=[];for(var di2=0;di2<900;di2++)dust.push({x:Math.random(),y:Math.random(),r:0.6+Math.random()*1.4,sp:4+Math.random()*10,ph:Math.random()*6.28,k:Math.random()});
 /* atmosphere state */
 var AURORA=['0,175,125','90,55,175'];
@@ -644,6 +645,7 @@ function frame(ts){
   fl+=(flT-fl)*(reduce?1:0.075);if(Math.abs(flT-fl)<0.002)fl=flT;
   var sgn=Math.cos(Math.PI*fl),fe=(1-sgn)/2;
   var pe=wrapW(dir*(sc/KPX)+off);
+  peG=pe;
   /* update location hash at most once per second so the URL reflects current level */
   if(t-lastHashT>1){
     lastHashT=t;
@@ -999,8 +1001,46 @@ function buildIndex(){
 buildIndex();
 document.getElementById('btnIndex').addEventListener('click',function(){idx.hidden=false;document.getElementById('idxClose').focus();});
 document.getElementById('idxClose').addEventListener('click',function(){idx.hidden=true;});
+/* level centres in world-position order (Beyond → Core) */
+var LEVELS=[-2.5*LV,-2*LV,-LV,0,LV,2*LV,2.75*LV];
+function goToLevel(targetPe){
+  /* convert a target pe into a scroll position and smooth-scroll there */
+  var wCur=dir*(sc/KPX)+off;
+  var wT=targetPe+Math.round((wCur-targetPe)/PW)*PW;
+  var s=(wT-off)*dir*KPX;
+  while(s<LO)s+=PER;
+  while(s>HI)s-=PER;
+  window.scrollTo({top:s,behavior:reduce?'auto':'smooth'});
+}
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){if(!idx.hidden)idx.hidden=true;else if(!panel.hidden)closePanel();}
+  /* don't intercept when typing in an input or when a dialog is fully open */
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(e.key==='Escape'){
+    if(!idx.hidden){idx.hidden=true;return;}
+    if(!panel.hidden){closePanel();return;}
+  }
+  if(!idx.hidden)return; /* let the index handle its own focus */
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+    e.preventDefault();
+    /* find the level we're closest to, then step one in the pressed direction */
+    var step=e.key==='ArrowDown'?1:-1;
+    var closest=0,cd2=1e9;
+    for(var li2=0;li2<LEVELS.length;li2++){
+      var d2=Math.abs(peG-LEVELS[li2]);if(d2<cd2){cd2=d2;closest=li2;}
+    }
+    var next=Math.max(0,Math.min(LEVELS.length-1,closest+step));
+    goToLevel(LEVELS[next]);
+  }
+  if(e.key==='Enter'&&panel.hidden){
+    /* open the node closest to the screen centre */
+    if(hits.length===0)return;
+    var bestH=null,bestD=1e9;
+    for(var hi2=0;hi2<hits.length;hi2++){
+      var dx=hits[hi2].x-W/2,dy=hits[hi2].y-H/2,d3=dx*dx+dy*dy;
+      if(d3<bestD){bestD=d3;bestH=hits[hi2];}
+    }
+    if(bestH)openNode(bestH.n,false);
+  }
 });
 
 window.addEventListener('resize',layout);
