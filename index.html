@@ -495,6 +495,7 @@ var SKULL_LINS=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,0],[9,10],[10
 /* shooting stars */
 var shoots=[],shootTick=3;
 var lastHashT=0;
+var hoverPh={}; /* node-id → pulse phase 0..1 for hover ring animation */
 
 /* ---------- drawing helpers ---------- */
 function strokeSet(XS,YS,useCull,color,ox,oy){
@@ -598,6 +599,15 @@ function drawMarker(n,x,y,a,active,t){
   ctx.strokeStyle=ring;ctx.lineWidth=1.6;ctx.stroke();
   ctx.fillStyle=ring;ctx.beginPath();ctx.arc(x,y,dom?3:2,0,6.2832);ctx.fill();
   if(active){ctx.strokeStyle=ring;ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x,y,r+6,0,6.2832);ctx.stroke();}
+  /* hover pulse: a second expanding ring that breathes while the pointer is over this node */
+  if(!reduce&&!active){
+    var hp=hoverPh[n.id]||0;
+    if(hp>0.001){
+      ctx.globalAlpha=a*hp*(1-hp)*2.6;
+      ctx.strokeStyle=ring;ctx.lineWidth=1.4;
+      ctx.beginPath();ctx.arc(x,y,r+4+hp*10,0,6.2832);ctx.stroke();
+    }
+  }
   ctx.globalAlpha=1;
 }
 function drawNow(n,x,y,t,dirSky,active,ga){
@@ -843,6 +853,17 @@ function frame(ts){
   ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
 
   /* nodes: markers first, then labels with collision handling */
+  /* advance hover pulse phases */
+  if(!reduce){
+    for(var hpi=0;hpi<NODES.length;hpi++){
+      var hn=NODES[hpi],hid2=hn.id;
+      if(hover===hn){
+        hoverPh[hid2]=Math.min(1,(hoverPh[hid2]||0)+fdt*1.4);
+      } else {
+        hoverPh[hid2]=Math.max(0,(hoverPh[hid2]||0)-fdt*2.2);
+      }
+    }
+  }
   hits=[];placed=[];
   var cands=[];
   for(var ni=0;ni<NODES.length;ni++){
